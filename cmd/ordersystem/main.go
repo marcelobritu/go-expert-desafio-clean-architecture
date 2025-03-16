@@ -4,8 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"net/http"
 
+	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/marcelobritu/go-expert-desafio-clean-architecture/configs"
+	"github.com/marcelobritu/go-expert-desafio-clean-architecture/internal/infra/graph"
 	"github.com/marcelobritu/go-expert-desafio-clean-architecture/internal/infra/grpc/pb"
 	"github.com/marcelobritu/go-expert-desafio-clean-architecture/internal/infra/grpc/service"
 	"github.com/marcelobritu/go-expert-desafio-clean-architecture/internal/infra/web/webserver"
@@ -45,5 +49,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	grpcServer.Serve(lis)
+	go grpcServer.Serve(lis)
+
+	srv := graphql_handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+		ListOrdersUseCase: *listOrdersUseCase,
+	}}))
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
+
+	fmt.Println("Starting GraphQL server on port", configs.GraphQLServerPort)
+	http.ListenAndServe(":"+configs.GraphQLServerPort, nil)
 }

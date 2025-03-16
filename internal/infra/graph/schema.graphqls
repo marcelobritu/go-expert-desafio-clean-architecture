@@ -1,0 +1,10 @@
+type Order {
+  ID: String!
+  Price: Float!
+  Tax: Float!
+  FinalPrice: Float!
+}
+
+type Query {
+  orders: [Order!]!
+}
