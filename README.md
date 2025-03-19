@@ -57,13 +57,7 @@ query queryOrders {
 
 ### gRPC
 
-Para testar via gRPC, utilize ferramentas como `grpcurl` ou implemente um cliente gRPC.
-
-#### Exemplo com `grpcurl`:
-
-```sh
-grpcurl -plaintext -d '{"product_id": "123", "quantity": 2}' localhost:50051 orders.OrderService/CreateOrder
-```
+Para testar via gRPC, utilize ferramentas como `evans` ou implemente um cliente gRPC.
 
 #### Exemplo com `evans`:
 
