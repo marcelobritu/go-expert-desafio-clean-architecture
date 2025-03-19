@@ -8,10 +8,7 @@ Este projeto é uma aplicação de sistema de pedidos que utiliza a arquitetura 
 
 ## Pré-requisitos
 
-- Go 1.16+
 - Docker
-- Docker Compose
-- [migrate](https://github.com/golang-migrate/migrate)
 
 ## Instalação
 
@@ -22,47 +19,73 @@ Este projeto é uma aplicação de sistema de pedidos que utiliza a arquitetura 
    cd go-expert-desafio-clean-architecture
    ```
 
-2. Instale as dependências:
-
-   ```sh
-   go mod download
-   ```
-
-3. Inicie os containers Docker:
+2. Inicie os containers Docker:
    ```sh
    docker-compose up -d
    ```
 
-## Migrações do Banco de Dados
+## Testando a Aplicação
 
-Para iniciar o banco de dados e popular com dados, execute:
+### HTTP
 
-```sh
-migrate -path=sql/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose up
-```
-
-ou
+Para testar a aplicação via HTTP, utilize ferramentas como `curl` ou Postman. Por exemplo:
 
 ```sh
-make migrate
+curl -X GET http://localhost:8000/order -H "Content-Type: application/json"
 ```
 
-Para desfazer as tabelas e os dados, execute:
+### GraphQL
+
+Para testar via GraphQL, acesse o endpoint GraphQL no navegador ou use ferramentas como GraphQL Playground. O endpoint estará disponível em:
+
+```
+http://localhost:8080
+```
+
+Exemplo de query:
+
+```graphql
+query queryOrders {
+  orders {
+    ID
+    Price
+    Tax
+    FinalPrice
+  }
+}
+```
+
+### gRPC
+
+Para testar via gRPC, utilize ferramentas como `grpcurl` ou implemente um cliente gRPC.
+
+#### Exemplo com `grpcurl`:
 
 ```sh
-migrate -path=sql/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose down
+grpcurl -plaintext -d '{"product_id": "123", "quantity": 2}' localhost:50051 orders.OrderService/CreateOrder
 ```
 
-ou
+#### Exemplo com `evans`:
 
-```sh
-make migratedown
-```
+1. Inicie o cliente `evans` no modo interativo:
 
-## Executando a Aplicação
+   ```sh
+   evans -r repl
+   ```
 
-Para rodar a aplicação, execute:
+2. Selecione o package `pb`:
 
-```sh
-go run cmd/ordersystem/main.go cmd/ordersystem/wire_gen.go
-```
+   ```sh
+   package pb
+   ```
+
+3. Selecione o serviço `OrderService`:
+
+   ```sh
+   service OrderService
+   ```
+
+4. Para listar pedidos (`ListOrders`), basta chamar:
+   ```sh
+   call ListOrders
+   ```
